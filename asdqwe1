@@ -1,0 +1,90 @@
+class Plant:
+    def __init__(self, curr_water, curr_sun, max_water, max_sun, curr_soil, fav_soil="any"):
+        self.curr_water = curr_water
+        self.curr_sun = curr_sun
+        self.max_water = max_water
+        self.max_sun = max_sun
+        self.curr_soil = curr_soil
+        self.fav_soil = fav_soil
+        self.curr_progress = 0
+        self.water_fail_count = 0
+        self.sun_fail_count = 0
+
+    def grow(self):
+        if self.curr_soil == self.fav_soil:
+            self.curr_progress += 1
+        else:
+            self.curr_progress += 0.25
+
+        self.curr_water -= 1
+        self.curr_sun -= 1
+
+        if self.curr_water <= 0 or self.curr_sun <= 0:
+            print("Растение погибло из-за недостатка воды или солнца.")
+            return False
+
+        return True
+
+    def get_water(self, amount):
+        self.curr_water += amount
+
+    def get_sun(self, amount):
+        self.curr_sun += amount
+
+class Rose(Plant):
+    def __init__(self, curr_water, curr_sun, max_water, max_sun, curr_soil, fav_soil="any", petal_color="red"):
+        super().__init__(curr_water, curr_sun, max_water, max_sun, curr_soil, fav_soil)
+        self.petal_color = petal_color
+        self.bud = True
+
+    def grow(self):
+        result = super().grow()
+        
+        if self.curr_progress >= 80 and self.bud:
+            print("Роза расцвела!")
+            self.bud = False
+
+        return result
+
+class Cactus(Plant):
+    def __init__(self, curr_water, curr_sun, max_water, max_sun, curr_soil, fav_soil="any"):
+        super().__init__(curr_water, curr_sun, max_water, max_sun, curr_soil, fav_soil)
+        self.spines = False
+
+    def grow(self):
+        result = super().grow()
+
+        if self.curr_progress >= 20 and not self.spines:
+            print("У кактуса выросли колючки!")
+            self.spines = True
+
+        return result
+
+flowers = {}
+
+while True:
+    command = input("Введите команду: ")
+    
+    if command == "0":
+        break
+    elif command.startswith("1"):
+        _, class_name, unique_name, water, sun, *args = command.split()
+        if class_name == "Rose":
+            color = args[0]
+            flowers[unique_name] = Rose(int(water), int(sun), 100, 100, 50, "sandy", color)
+        elif class_name == "Cactus":
+            flowers[unique_name] = Cactus(int(water), int(sun), 50, 80, 70, "rocky")
+    elif command.startswith("2"):
+        _, unique_name, water = command.split()
+        flowers[unique_name].get_water(int(water))
+    elif command.startswith("3"):
+        _, unique_name, sun = command.split()
+        flowers[unique_name].get_sun(int(sun))
+    elif command.startswith("4"):
+        _, unique_name = command.split()
+        if unique_name in flowers:
+            if not flowers[unique_name].grow():
+                del flowers[unique_name]
+    elif command == "5":
+        for name, flower in flowers.items():
+            print(f"{name}: Water - {flower.curr_water}, Sun - {flower.curr_sun}, Progress - {flower.curr_progress}")
