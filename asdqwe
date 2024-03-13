@@ -1,0 +1,42 @@
+import random
+
+class Tool:
+    def __init__(self, rarity, durability):
+        self.rarity = rarity
+        self.durability = durability
+
+class Pickaxe(Tool):
+    def mine_metal(self):
+        print("Добыча металла...")
+        self.durability -= 25
+        print("Ты получил 1 металл!")
+
+class Shovel(Tool):
+    def clear_dirt(self):
+        print("Расчистка земли...")
+        self.durability -= 15
+        print("Ты получил 1 мешок земли!")
+
+def start():
+    pickaxe = Pickaxe(rarity="common", durability=100)
+    shovel = Shovel(rarity="common", durability=100)
+
+    while True:
+        event = random.choices(["mine", "clear"], weights=[0.2, 0.8])[0]
+
+        if event == "mine":
+            pickaxe.mine_metal()
+            if pickaxe.durability <= 0:
+                print("Твоя кирка сломана!")
+                pickaxe = Pickaxe(rarity=random.choice(["common", "rare"]), durability=100)
+        else:
+            shovel.clear_dirt()
+            if shovel.durability <= 0:
+                print("Твоя лопата сломана!")
+                shovel = Shovel(rarity=random.choice(["common", "rare"]), durability=100)
+
+        choice = input("Продолжить? (y/n): ")
+        if choice.lower() != 'y':
+            break
+
+start()
