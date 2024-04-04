@@ -1,0 +1,68 @@
+import random
+
+class Question:
+    def __init__(self, content, correct_answer, points, comment=None):
+        self.content = content
+        self.correct_answer = correct_answer
+        self.points = points
+        self.comment = comment
+
+class GameSession:
+    def __init__(self, player_name):
+        self.player_name = player_name
+        self.score = 0
+
+class Game:
+    def __init__(self):
+        self.questions = []
+        self.sessions = []
+    
+    def load_questions(self, file_name):
+        with open(file_name, 'r') as file:
+            for line in file:
+                data = line.split(',')
+                content = data[0]
+                correct_answer = data[1]
+                points = int(data[2])
+                comment = data[3] if len(data) > 3 else None
+                question = Question(content, correct_answer, points, comment)
+                self.questions.append(question)
+    
+    def generate_session(self, player_name):
+        session = GameSession(player_name)
+        random_questions = random.sample(self.questions, 10)
+        for question in random_questions:
+            print(question.content)
+            answers = [question.correct_answer]
+            while len(answers) < 4:
+                random_question = random.choice(self.questions)
+                if random_question.correct_answer not in answers:
+                    answers.append(random_question.correct_answer)
+            random.shuffle(answers)
+            print("Выберите ответ:")
+            for i in range(4):
+                print(f"{i+1}. {answers[i]}")
+            player_answer = int(input()) - 1
+            if answers[player_answer] == question.correct_answer:
+                print("Правильно!")
+                session.score += question.points
+                if question.comment:
+                    print(question.comment)
+            else:
+                print("Неправильно!")
+        self.sessions.append(session)
+    
+    def top_scores(self):
+        sorted_sessions = sorted(self.sessions, key=lambda x: x.score, reverse=True)
+        print("Топ-5 лучших результатов:")
+        for i, session in enumerate(sorted_sessions[:5]):
+            print(f"{i+1}. {session.player_name}: {session.score} баллов")
+
+# Пример использования
+game = Game()
+game.load_questions('questions.txt')
+
+game.generate_session('Имя1')
+game.generate_session('Имя2')
+
+game.top_scores()
